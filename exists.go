@@ -5,6 +5,16 @@ import (
   . "gopkg.in/check.v1"
 )
 
+// The Exists checker verifies that the obtained path to dir/file exists
+//
+// Examples:
+//
+// 		c.Check(path, Exists) - checks file system item exists
+// 		c.Check(path, Exists, "dir") - checks file system item exists and it is directory
+// 		c.Check(path, Exists, "file") - checks file system item exists and it is file
+//
+var Exists Checker = &existsChecker{}
+
 type existsChecker struct {}
 
 // Checker impl
@@ -18,15 +28,25 @@ func (c *existsChecker) Check(params []interface{}, names []string) (result bool
     error = "expected string argument"
     return
   }
-  kind, ok2 := params[1].(string)
-  if (!ok2) {
-    kind = "file"
+
+  st, err := os.Stat(path)
+  if (err != nil) {
+  	result = false
+  	return
   }
-  isDir := kind == "dir"
-  isFile := kind == "file"
-  s, err := os.Stat(path)
-  result = err != nil && s.IsDir() == isDir && s.IsDir() != isFile
+
+  if len(params) == 2 {
+  	kind, ok2 := params[1].(string)
+  	if (!ok2) {
+    	result = false
+    	return
+  	}
+  	if st.IsDir() {
+  		result = kind == "dir"
+  		return
+  	}
+  	result = kind == "file"
+  }
+
   return
 }
-
-var Exists Checker = &existsChecker{}
