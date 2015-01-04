@@ -1,4 +1,3 @@
-go-checkers
-===========
+# checkers
 
 More checkers for gocheck

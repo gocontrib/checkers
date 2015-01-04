@@ -1,4 +1,4 @@
-package gocheckers
+package checkers
 
 import (
   "os"
